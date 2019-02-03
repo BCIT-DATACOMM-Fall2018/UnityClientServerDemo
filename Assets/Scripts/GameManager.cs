@@ -35,9 +35,16 @@ public class GameManager : MonoBehaviour
         Packet healthPacket = ConnectionManager.Instance.Packetize(elements, elements);
         ConnectionManager.Instance.SendPacket(healthPacket);
 
-        Packet enemyHealthPacket = ConnectionManager.Instance.ReceivePacket();
-        UnpackedPacket unpackedEnemyHealth = ConnectionManager.Instance.UnPack(enemyHealthPacket, 
-            new ElementId[]{ ElementId.HealthElement });
+        /*********************************************************
+         Blocking call at ReceivePacket:
+         -Need to modify dll to use non-blocking for this to work
+         -Server also needs to be up to test the receive function
+         -Need to modify the destination in ConnectionManager       
+         *********************************************************/       
+              
+        //Packet enemyHealthPacket = ConnectionManager.Instance.ReceivePacket();
+        //UnpackedPacket unpackedEnemyHealth = ConnectionManager.Instance.UnPack(enemyHealthPacket, 
+            //new ElementId[]{ ElementId.HealthElement });
 
         //call some update function to change the text display
     }
