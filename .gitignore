@@ -53,3 +53,6 @@ crashlytics-build.properties
 #Plugin
 *.bundle
 *bundle.meta
+
+#Application
+*.app
