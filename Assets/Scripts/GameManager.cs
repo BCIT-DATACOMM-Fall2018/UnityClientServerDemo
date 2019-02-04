@@ -91,8 +91,8 @@ public class GameManager : MonoBehaviour
             new HealthElement(ACTOR_ID, Health)
         };
 
-        //Packet healthPacket = ConnectionManager.Instance.Packetize(elements, elements);
-        //ConnectionManager.Instance.SendPacket(healthPacket);
+        Packet healthPacket = ConnectionManager.Instance.Packetize(_elements, _elements);
+        ConnectionManager.Instance.SendPacket(healthPacket);
 
         /*********************************************************
          Blocking call at ReceivePacket:
