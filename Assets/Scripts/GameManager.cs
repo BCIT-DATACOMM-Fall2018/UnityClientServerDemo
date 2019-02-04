@@ -40,6 +40,7 @@ public class GameManager : MonoBehaviour
     #endregion
 
     private List<UpdateElement> _elements;
+    private List<UpdateElement> _empty = new List<UpdateElement>();
     private int _health;
     private int _enemyHealth;
 
@@ -91,19 +92,20 @@ public class GameManager : MonoBehaviour
             new HealthElement(ACTOR_ID, Health)
         };
 
-        Packet healthPacket = ConnectionManager.Instance.Packetize(_elements, _elements);
+        Packet healthPacket = ConnectionManager.Instance.Packetize(_empty, _elements);
         ConnectionManager.Instance.SendPacket(healthPacket);
+
 
         /*********************************************************
          Blocking call at ReceivePacket:
          -Need to modify dll to use non-blocking for this to work
          -Server also needs to be up to test the receive function
          -Need to modify the destination in ConnectionManager       
-         *********************************************************/       
-              
+         *********************************************************/
+
         //Packet enemyHealthPacket = ConnectionManager.Instance.ReceivePacket();
         //UnpackedPacket unpackedEnemyHealth = ConnectionManager.Instance.UnPack(enemyHealthPacket, 
-            //new ElementId[]{ ElementId.HealthElement });
+        //new ElementId[]{ ElementId.HealthElement });
 
         //call some update function to change the text display
     }
