@@ -9,19 +9,22 @@ using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
+    #region Constants
     private const string HERO_HEALTH_TAG = "HeroHealth";
     private const string ENEMY_HEALTH_TAG = "EnemyHealth";
     private const int HERO_INITIAL_HEALTH = 10;
     private const int ENEMY_INITIAL_HEALTH = 10;
     private const int ACTOR_ID = 1;
+    #endregion
 
+    #region Properties
     public int Health
     {
         get { return _health; }
         set 
         { 
             _health = value;
-            GameObject.Find(HERO_HEALTH_TAG).GetComponent<Text>().text = $"Hero Health: {_health}";
+            _updateTextElement(HERO_HEALTH_TAG, $"Hero Health: {_health}");
         }
     }
 
@@ -31,16 +34,14 @@ public class GameManager : MonoBehaviour
         set
         {
             _enemyHealth = value;
-            GameObject.Find(ENEMY_HEALTH_TAG).GetComponent<Text>().text = $"Enemy Health: {_enemyHealth}";
+            _updateTextElement(ENEMY_HEALTH_TAG, $"Enemy Health: {_enemyHealth}");
         }
     }
+    #endregion
 
     private List<UpdateElement> _elements;
     private int _health;
     private int _enemyHealth;
-
-    // Creates the server
-    void ServerThreadCall() => new Server(this);
 
     public void UpdateHealth(HealthElement healthElement)
     {
@@ -53,6 +54,14 @@ public class GameManager : MonoBehaviour
             EnemyHealth = healthElement.Health;
         }
     }
+
+    private void _updateTextElement(string elementTag, string message)
+    {
+        GameObject.Find(elementTag).GetComponent<Text>().text = message;
+    }
+
+    // Creates the server
+    void ServerThreadCall() => new Server(this);
 
     // Start is called before the first frame update
     void Start()
