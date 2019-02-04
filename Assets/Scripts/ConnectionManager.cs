@@ -58,7 +58,7 @@ public class ConnectionManager
 
     public Packet Packetize(List<UpdateElement> reliableElements, List<UpdateElement> unreliableElements)
     {
-        return connection.CreatePacket(reliableElements, unreliableElements);
+        return connection.CreatePacket(unreliableElements, reliableElements);
     }
 
     public UnpackedPacket UnPack(Packet packet, ElementId[] expectedUnreliableIds)

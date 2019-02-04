@@ -1,39 +1,86 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 using NetworkLibrary;
 using NetworkLibrary.MessageElements;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
-{ 
-    private List<UpdateElement> elements;
-    private int health;
+{
+    public int Health
+    {
+        get { return _health; }
+        set 
+        { 
+            _health = value;
+            GameObject.Find("HeroHealth").GetComponent<Text>().text = "Hero Health: " + _health;
+        }
+    }
 
-    private int enemyHealth;
+    public int EnemyHealth
+    {
+        get { return _enemyHealth; }
+        set
+        {
+            _enemyHealth = value;
+            GameObject.Find("EnemyHealth").GetComponent<Text>().text = "Enemy Health: " + _enemyHealth;
+        }
+    }
+
+    private List<UpdateElement> elements;
+    private int actorID = 1;
+    private int _health;
+    private int _enemyHealth;
+
+    // Creates the server
+    void ServerThreadCall() => new Server(this);
+
+    public void UpdateHealth(HealthElement healthElement)
+    {
+        if (healthElement.ActorId == actorID)
+        {
+            Health = healthElement.Health;
+        }
+        else
+        {
+            EnemyHealth = healthElement.Health;
+        }
+    }
 
     // Start is called before the first frame update
     void Start()
     {
-        health = 100;
-        enemyHealth = 100;
+        Health = 10;
+        EnemyHealth = 10;
+
+        Console.WriteLine("Starting");
+
+        // Create separate thread for server
+        new Thread(new ThreadStart(ServerThreadCall)).Start();
     }
+
 
     // Update is called once per frame
     void Update()
     {
         if (Input.GetMouseButtonDown(0))
         {
-            ++health;
+            ++Health;
         }
         else
         {
-            --health;
+            --Health;
         }
-        elements = new List<UpdateElement>();
-        elements.Add(new HealthElement(health, 0));
 
-        Packet healthPacket = ConnectionManager.Instance.Packetize(elements, elements);
-        ConnectionManager.Instance.SendPacket(healthPacket);
+        elements = new List<UpdateElement>
+        {
+            new HealthElement(actorID, Health)
+        };
+
+        //Packet healthPacket = ConnectionManager.Instance.Packetize(elements, elements);
+        //ConnectionManager.Instance.SendPacket(healthPacket);
 
         /*********************************************************
          Blocking call at ReceivePacket:
