@@ -29,8 +29,8 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private List<UpdateElement> elements;
-    private int actorID = 1;
+    private List<UpdateElement> _elements;
+    private int _actorID = 1;
     private int _health;
     private int _enemyHealth;
 
@@ -39,7 +39,7 @@ public class GameManager : MonoBehaviour
 
     public void UpdateHealth(HealthElement healthElement)
     {
-        if (healthElement.ActorId == actorID)
+        if (healthElement.ActorId == _actorID)
         {
             Health = healthElement.Health;
         }
@@ -69,14 +69,14 @@ public class GameManager : MonoBehaviour
         {
             ++Health;
         }
-        else
-        {
-            --Health;
-        }
+        //else
+        //{
+        //    --Health;
+        //}
 
-        elements = new List<UpdateElement>
+        _elements = new List<UpdateElement>
         {
-            new HealthElement(actorID, Health)
+            new HealthElement(_actorID, Health)
         };
 
         //Packet healthPacket = ConnectionManager.Instance.Packetize(elements, elements);
