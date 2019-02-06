@@ -23,27 +23,28 @@ public class Server
 
             Console.WriteLine("Got packet.");
 
-            // Unpack the packet using the ReliableUDPConnection
-            UnpackedPacket unpacked = connection.ProcessPacket(packet, new ElementId[] { ElementId.HealthElement });
+            //// Unpack the packet using the ReliableUDPConnection
+            //UnpackedPacket unpacked = connection.ProcessPacket(packet, new ElementId[] { ElementId.HealthElement });
 
-            // Iterate through the unreliable elements and call their UpdateState function.
-            foreach (var element in unpacked.UnreliableElements)
-            {
-                gameManager.UpdateHealth((HealthElement)element);
+            //// Iterate through the unreliable elements and call their UpdateState function.
+            //foreach (var element in unpacked.UnreliableElements)
+            //{
+            //   //gameManager.UpdateHealth((HealthElement)element);
 
-                //List<UpdateElement> elements = new List<UpdateElement>
-                //{
-                //    element
-                //};
+            //    List<UpdateElement> elements = new List<UpdateElement>
+            //    {
+            //        element
+            //    };
 
-                //Console.WriteLine("Sending response packet.");
+            //    Console.WriteLine("Sending response packet.");
 
-                //// Create a new packet
-                //packet = connection.CreatePacket(elements, elements);
+            //    // Create a new packet
+            //    packet = connection.CreatePacket(elements, elements);
 
-                //// Send the packet
-                //socket.Send(packet, socket.LastReceivedFrom);
-            }
+            //}
+
+            // Send the packet
+            socket.Send(packet, socket.LastReceivedFrom);
         }
     }
 }

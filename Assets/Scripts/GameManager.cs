@@ -64,6 +64,23 @@ public class GameManager : MonoBehaviour
     // Creates the server
     void ServerThreadCall() => new Server(this);
 
+    void ReceiveThread()
+    { 
+        while (true)
+        {
+            Packet healthPacket = ConnectionManager.Instance.ReceivePacket();
+            UnpackedPacket unpackedHealth = ConnectionManager.Instance.UnPack(healthPacket, 
+            new ElementId[]{ ElementId.HealthElement });
+
+            foreach (var element in unpackedHealth.UnreliableElements)
+            {
+                // This should break something
+                UpdateHealth((HealthElement)element);
+            }
+
+        }
+    }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -72,6 +89,8 @@ public class GameManager : MonoBehaviour
 
         // Create separate thread for server
         new Thread(new ThreadStart(ServerThreadCall)).Start();
+
+        new Thread(new ThreadStart(ReceiveThread)).Start();
     }
 
 
@@ -80,20 +99,22 @@ public class GameManager : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            ++Health;
+            ++_health;
+
+            _elements = new List<UpdateElement>
+            {
+                new HealthElement(ACTOR_ID, _health)
+            };
+
+            Packet healthPacket = ConnectionManager.Instance.Packetize(_empty, _elements);
+            ConnectionManager.Instance.SendPacket(healthPacket);
+
+            //UpdateHealth((HealthElement)_elements[0]);
         }
         //else
         //{
         //    --Health;
         //}
-
-        _elements = new List<UpdateElement>
-        {
-            new HealthElement(ACTOR_ID, Health)
-        };
-
-        Packet healthPacket = ConnectionManager.Instance.Packetize(_empty, _elements);
-        ConnectionManager.Instance.SendPacket(healthPacket);
 
 
         /*********************************************************
@@ -102,10 +123,6 @@ public class GameManager : MonoBehaviour
          -Server also needs to be up to test the receive function
          -Need to modify the destination in ConnectionManager       
          *********************************************************/
-
-        //Packet enemyHealthPacket = ConnectionManager.Instance.ReceivePacket();
-        //UnpackedPacket unpackedEnemyHealth = ConnectionManager.Instance.UnPack(enemyHealthPacket, 
-        //new ElementId[]{ ElementId.HealthElement });
 
         //call some update function to change the text display
     }
