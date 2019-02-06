@@ -9,12 +9,15 @@ public class ConnectionManager
     private Destination destination;
     private UDPSocket socket;
     private ReliableUDPConnection connection;
+    public Queue<HealthElement> healthElements;
 
     private ConnectionManager()
     {
         CreateSocketUDP();
 
         ConnectReliableUDP();
+
+        healthElements = new Queue<HealthElement>();
 
         destination = new Destination((uint)System.Net.IPAddress.HostToNetworkOrder(2130706433), 
             (ushort)System.Net.IPAddress.HostToNetworkOrder((short)8000));

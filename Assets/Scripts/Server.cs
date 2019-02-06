@@ -23,8 +23,8 @@ public class Server
 
             Console.WriteLine("Got packet.");
 
-            //// Unpack the packet using the ReliableUDPConnection
-            //UnpackedPacket unpacked = connection.ProcessPacket(packet, new ElementId[] { ElementId.HealthElement });
+            // Unpack the packet using the ReliableUDPConnection
+            UnpackedPacket unpacked = connection.ProcessPacket(packet, new ElementId[] { ElementId.HealthElement });
 
             //// Iterate through the unreliable elements and call their UpdateState function.
             //foreach (var element in unpacked.UnreliableElements)
@@ -38,10 +38,10 @@ public class Server
 
             //    Console.WriteLine("Sending response packet.");
 
-            //    // Create a new packet
-            //    packet = connection.CreatePacket(elements, elements);
-
             //}
+
+            // Create a new packet
+            packet = connection.CreatePacket(unpacked.UnreliableElements, unpacked.ReliableElements);
 
             // Send the packet
             socket.Send(packet, socket.LastReceivedFrom);

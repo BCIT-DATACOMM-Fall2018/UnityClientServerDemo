@@ -74,8 +74,7 @@ public class GameManager : MonoBehaviour
 
             foreach (var element in unpackedHealth.UnreliableElements)
             {
-                // This should break something
-                UpdateHealth((HealthElement)element);
+                ConnectionManager.Instance.healthElements.Enqueue((HealthElement)element);
             }
 
         }
@@ -97,6 +96,11 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (ConnectionManager.Instance.healthElements.Count > 0)
+        {
+            UpdateHealth(ConnectionManager.Instance.healthElements.Dequeue());
+        }
+
         if (Input.GetMouseButtonDown(0))
         {
             ++_health;
@@ -106,7 +110,7 @@ public class GameManager : MonoBehaviour
                 new HealthElement(ACTOR_ID, _health)
             };
 
-            Packet healthPacket = ConnectionManager.Instance.Packetize(_empty, _elements);
+            Packet healthPacket = ConnectionManager.Instance.Packetize(_elements, _elements);
             ConnectionManager.Instance.SendPacket(healthPacket);
 
             //UpdateHealth((HealthElement)_elements[0]);
