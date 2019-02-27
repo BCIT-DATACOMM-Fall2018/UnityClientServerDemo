@@ -21,8 +21,8 @@ public class GameManager : MonoBehaviour
     public int Health
     {
         get { return _health; }
-        set 
-        { 
+        set
+        {
             _health = value;
             _updateTextElement(HERO_HEALTH_TAG, $"Hero Health: {_health}");
         }
@@ -40,6 +40,7 @@ public class GameManager : MonoBehaviour
     #endregion
 
     private List<UpdateElement> _elements;
+    private List<UpdateElement> _empty = new List<UpdateElement>();
     private int _health;
     private int _enemyHealth;
 
@@ -63,6 +64,29 @@ public class GameManager : MonoBehaviour
     // Creates the server
     void ServerThreadCall() => new Server(this);
 
+    void ReceiveThread()
+    {
+        while (true)
+        {
+            Debug.Log("In ReceiveThread loop");
+            Packet healthPacket = ConnectionManager.Instance.ReceivePacket();
+
+            foreach (var item in healthPacket.Data) {
+                if (item != 0) {
+                    Debug.Log("Debug packet: " + item);
+                }
+            }
+            Debug.Log((int)(healthPacket.Data[5]));
+            UnpackedPacket unpackedHealth = ConnectionManager.Instance.UnPack(healthPacket,
+                new ElementId[]{ ElementId.HealthElement });
+
+            foreach (var element in unpackedHealth.UnreliableElements)
+            {
+                ConnectionManager.Instance.healthElements.Enqueue((HealthElement)element);
+            }
+        }
+    }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -70,40 +94,47 @@ public class GameManager : MonoBehaviour
         EnemyHealth = ENEMY_INITIAL_HEALTH;
 
         // Create separate thread for server
-        new Thread(new ThreadStart(ServerThreadCall)).Start();
+        //new Thread(new ThreadStart(ServerThreadCall)).Start();
+
+        new Thread(new ThreadStart(ReceiveThread)).Start();
     }
 
 
     // Update is called once per frame
     void Update()
     {
+        if (ConnectionManager.Instance.healthElements.Count > 0)
+        {
+            HealthElement my_health = ConnectionManager.Instance.healthElements.Dequeue();
+            UpdateHealth(my_health);
+        }
+
         if (Input.GetMouseButtonDown(0))
         {
-            ++Health;
+            ++_health;
+
+            _elements = new List<UpdateElement>
+            {
+                new HealthElement(ACTOR_ID, _health)
+            };
+
+            Packet healthPacket = ConnectionManager.Instance.Packetize(_elements, _elements);
+            ConnectionManager.Instance.SendPacket(healthPacket);
+
+            //UpdateHealth((HealthElement)_elements[0]);
         }
         //else
         //{
         //    --Health;
         //}
 
-        _elements = new List<UpdateElement>
-        {
-            new HealthElement(ACTOR_ID, Health)
-        };
-
-        Packet healthPacket = ConnectionManager.Instance.Packetize(_elements, _elements);
-        ConnectionManager.Instance.SendPacket(healthPacket);
 
         /*********************************************************
          Blocking call at ReceivePacket:
          -Need to modify dll to use non-blocking for this to work
          -Server also needs to be up to test the receive function
-         -Need to modify the destination in ConnectionManager       
-         *********************************************************/       
-              
-        //Packet enemyHealthPacket = ConnectionManager.Instance.ReceivePacket();
-        //UnpackedPacket unpackedEnemyHealth = ConnectionManager.Instance.UnPack(enemyHealthPacket, 
-            //new ElementId[]{ ElementId.HealthElement });
+         -Need to modify the destination in ConnectionManager
+         *********************************************************/
 
         //call some update function to change the text display
     }

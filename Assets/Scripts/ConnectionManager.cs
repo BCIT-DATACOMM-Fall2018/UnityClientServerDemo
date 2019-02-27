@@ -1,3 +1,4 @@
+﻿using System;
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,6 +10,7 @@ public class ConnectionManager
     private Destination destination;
     private UDPSocket socket;
     private ReliableUDPConnection connection;
+    public Queue<HealthElement> healthElements;
 
     private ConnectionManager()
     {
@@ -16,8 +18,15 @@ public class ConnectionManager
 
         ConnectReliableUDP();
 
-        destination = new Destination((uint)System.Net.IPAddress.HostToNetworkOrder(2130706433), 
-            (ushort)System.Net.IPAddress.HostToNetworkOrder((short)8000));
+        healthElements = new Queue<HealthElement>();
+
+        uint ip = 3232235537;
+        //uint ip =
+
+        destination = new Destination((uint)System.Net.IPAddress.HostToNetworkOrder((int)ip), (UInt16)System.Net.IPAddress.HostToNetworkOrder((short)8000));
+
+        //Debug.Log(System.Net.IPAddress.HostToNetworkOrder((int)ip));
+
     }
 
     public static ConnectionManager Instance
@@ -53,7 +62,10 @@ public class ConnectionManager
 
     public Packet ReceivePacket()
     {
-        return socket.Receive();
+        Packet temp = socket.Receive();
+        Debug.Log("Receive Packet:" + temp.Data[3]);
+        return temp;
+        //return socket.Receive();
     }
 
     public Packet Packetize(List<UpdateElement> reliableElements, List<UpdateElement> unreliableElements)
